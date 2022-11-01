@@ -113,22 +113,26 @@ TOKEN AnaLex(FILE *fd)
 
       else if (c == '/')
       { // sinal de divisao - monta e devolve token
-
+        estado = 13;
+        /*
         token.cat = SN;
 
         token.codigo = DIVISAO;
 
         return token;
+        */
       }
 
       else if (c == '=')
       { // sinal de atribuicao - monta e devolve token
-
+        estado = 5;
+        /*
         token.cat = SN;
 
         token.codigo = ATRIBUICAO;
 
         return token;
+        */
       }
 
       else if (c == '%')
@@ -183,22 +187,26 @@ TOKEN AnaLex(FILE *fd)
 
       else if (c == '>')
       { // sinal de adicao - monta e devolve token
-
+        estado = 6;
+        /*
         token.cat = SN;
 
         token.codigo = MAIOR;
 
         return token;
+        */
       }
 
       else if (c == '<')
       { // sinal de adicao - monta e devolve token
-
+        estado = 7;
+        /*
         token.cat = SN;
 
         token.codigo = MENOR;
 
         return token;
+        */
       }
 
       else if (c == '[')
@@ -223,22 +231,26 @@ TOKEN AnaLex(FILE *fd)
 
       else if (c == '&')
       { // sinal de adicao - monta e devolve token
-
+        estado = 8;
+        /*
         token.cat = SN;
 
         token.codigo = E_COMERC;
 
         return token;
+        */
       }
 
       else if (c == '!')
       { // sinal de adicao - monta e devolve token
-
+        estado = 9;
+        /*
         token.cat = SN;
 
         token.codigo = NAO;
 
         return token;
+        */
       }
 
       else if (c == ',')
@@ -253,12 +265,14 @@ TOKEN AnaLex(FILE *fd)
 
       else if (c == '|')
       { // sinal de adicao - monta e devolve token
-
+        estado = 12
+        /*
         token.cat = SN;
 
         token.codigo = OU;
 
         return token;
+        */
       }
 
       else if (c == '^')
@@ -461,6 +475,91 @@ TOKEN AnaLex(FILE *fd)
         // token.indice = *token.lexema;
         return token;
       }
+      break;
+    case 5:
+      if(c == '=')
+      {
+        token.cat = SN;
+        token.codigo = COMPARACAO;
+        return token;
+      }else
+      {
+        ungetc(c, fd);
+
+        token.cat = SN;
+
+        token.codigo = ATRIBUICAO;
+
+        return token;
+      }
+      break;
+
+    case 6:
+      if(c == '=')
+      {
+        token.cat = SN;
+        token.codigo = MAIOR_IGUAL;
+        return token;
+      }else
+      {
+        ungetc(c, fd);
+
+        token.cat = SN;
+
+        token.codigo = MAIOR;
+
+        return token;
+      }
+      break;
+
+    case 7:
+      if(c == '=')
+      {
+        token.cat = SN;
+        token.codigo = MENOR_IGUAL;
+        return token;
+      }else
+      {
+        ungetc(c, fd);
+
+        token.cat = SN;
+
+        token.codigo = MENOR;
+
+        return token;
+      }
+      break;
+
+    case 8:
+      if(c == '&')
+      {
+        token.cat = SN;
+        token.codigo = AND;
+        return token;
+      }else
+      {
+        error ("caracter invalido na expressao")
+      }
+      break;
+    
+    case 9:
+      if(c == '=')
+      {
+        token.cat = SN;
+        token.codigo = NAO_IGUAL;
+        return token;
+      }else
+      {
+        ungetc(c, fd);
+
+        token.cat = SN;
+
+        token.codigo = NAO;
+
+        return token;
+      }
+      break;
+
     case 10:
       if (c >= '0' && c <= '9')
       {
@@ -512,6 +611,41 @@ TOKEN AnaLex(FILE *fd)
         return token;
       }
       break;
+
+    case 12:
+      if(c == '|')
+      {
+        token.cat = SN;
+        token.codigo = OU;
+        return token;
+      }else
+      {
+        error ("caracter invalido na expressao")
+      }
+      break;
+    // Tratamento de comentario
+    case 13:
+      if(c == '*') estado = 14;
+      else
+      {
+        ungetc(c, fd);
+
+        token.cat = SN;
+
+        token.codigo = DIVISAO;
+
+        return token;
+      }
+      break;
+    case 14:
+      if(c=='*') estado = 15;
+      else estado = 14;
+      break;
+
+    case 15:
+      if (c=='/') estado = 0;
+      else estado = 14;
+      break;
     }
   }
 }
@@ -535,14 +669,14 @@ int main()
     switch (tk.cat)
     {
 
-    case ID:
-      printf("<ID, %s> ", tk.lexema);
+      case ID:
+        printf("<ID, %s> ", tk.lexema);
 
-      break;
+        break;
 
-    case SN:
-      switch (tk.codigo)
-      {
+      case SN:
+        switch (tk.codigo)
+        {
 
       case ADICAO:
         printf("<SN, ADICAO> ");
@@ -554,7 +688,7 @@ int main()
 
         break;
 
-      case MULTIPLIC:
+      case MULTIPLICACAO:
         printf("<SN, MULTIPLICACAO> ");
 
         break;
@@ -564,17 +698,17 @@ int main()
 
         break;
 
-      case ATRIB:
+      case ATRIBUICAO:
         printf("<SN, ATRIBUICAO> ");
 
         break;
 
-      case ABRE_PAR:
+      case A_PARANETESE:
         printf("<SN, ABRE_PARENTESES> ");
 
         break;
 
-      case FECHA_PAR:
+      case F_PARENTESE:
         printf("<SN, FECHA_PARENTESES> ");
 
         break;
